@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Slider with 3D Effect</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: white;
+        }
+
+        .gallery {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 600px; /* Increased height to accommodate larger active image */
+            perspective: 1000px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-item {
+            position: absolute;
+            width: 300px;
+            height: 400px; /* Default height for non-active images */
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            transform-origin: center;
+            opacity: 0.5;
+            transform: translateZ(-100px) scale(0.8);
+            border-radius: 10px;
+            border: 5px solid black;
+            z-index: 0; /* Reset z-index to handle proper stacking order */
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .active {
+            opacity: 1;
+            transform: translateZ(200px) scale(1); /* Bring the active image forward */
+            z-index: 3; /* Ensure the active item is on top */
+            height: 600px; /* Increased height for the active image */
+        }
+
+        .left {
+            transform: translateX(-150px) translateZ(-150px) scale(0.7) rotateY(20deg);
+            z-index: 2; /* Place left item behind active but in front of right */
+        }
+
+        .right {
+            transform: translateX(150px) translateZ(-150px) scale(0.7) rotateY(-20deg);
+            z-index: 1; /* Place right item behind left */
+        }
+
+        .navigation {
+            margin-top: 10px;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 5px;
+            font-size: 1.2em;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        /* Styling for the text displayed on the active image */
+        .image-text {
+            position: absolute;
+            bottom: 60px; /* Adjust the bottom position */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%; /* Adjusted width to ensure better fitting */
+            font-size: 1.5em; /* Increased font size for better visibility */
+            color: white;
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+            padding: 10px 20px; /* Adjusted padding for better text spacing */
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 4; /* Ensure text is above the image */
+            text-align: center; /* Center-align the text */
+        }
+
+        .active .image-text {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center">SKINCARE</h1>
+        <div class="gallery" id="gallery">
+            <div class="gallery-item active">
+                <img src="https://i.pinimg.com/564x/94/6f/ef/946fef56a9b1625026e4a2c492ac4459.jpg" alt="Image 1">
+                <div class="image-text">Rose Water: Nature's Refreshing Skincare Secret</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://i.pinimg.com/564x/1e/dd/05/1edd0504d09f658e65fdc30c369003a5.jpg" alt="Image 2">
+                <div class="image-text">Cream Cleanser: Hydrate and Cleanse in One Step</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://i.pinimg.com/564x/5d/27/a3/5d27a39f512593d23ed85213b8811e79.jpg" alt="Image 3">
+                <div class="image-text">Daily Moisturiser: Nourish, Protect, and Revitalize Your Skin</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://i.pinimg.com/564x/75/d0/32/75d032672c8bffb7e366808569eaec2d.jpg" alt="Image 4">
+                <div class="image-text">Beautifying Creme Cleansing Oil: Soft, Smooth Skin for Every Type</div>
+            </div>
+            
+            <div class="gallery-item">
+                <img src="https://i.pinimg.com/564x/99/1b/0e/991b0e2f72ef0be63e378fde791dcfcd.jpg" alt="Image 5">
+                <div class="image-text">Dr. Severin Serum: Instant Wrinkle Reduction with Hyaluronic Acid and Vitamin C</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://i.pinimg.com/564x/77/7e/c4/777ec4a1c1358bc37534c5ba85de10b7.jpg" alt="Image 6">
+                <div class="image-text">Herbivore Jasmine Green Tea Toner: Balance, Soothe, and Clarify Naturally</div>
+            </div>
+        </div>
+        <div class="navigation">
+            <button class="prev">❮</button>
+            <button class="next">❯</button>
+        </div>
+    </div>
+    <script>
+        let currentIndex = 0;
+        const items = document.querySelectorAll('.gallery-item');
+        const totalItems = items.length;
+
+        document.querySelector('.next').addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % totalItems;
+            updateGallery();
+        });
+
+        document.querySelector('.prev').addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+            updateGallery();
+        });
+
+        function updateGallery() {
+            items.forEach((item, index) => {
+                item.classList.remove('active', 'left', 'right');
+                item.style.opacity = '0'; // Hide all items initially
+                
+                if (index === currentIndex) {
+                    item.classList.add('active');
+                    item.style.opacity = '1'; // Show the active item
+                } else if (index === (currentIndex - 1 + totalItems) % totalItems) {
+                    item.classList.add('left');
+                    item.style.opacity = '1'; // Show the left item
+                } else if (index === (currentIndex + 1) % totalItems) {
+                    item.classList.add('right');
+                    item.style.opacity = '1'; // Show the right item
+                }
+            });
+        }
+
+        // Initialize the gallery positions
+        updateGallery();
+    </script>
+</body>
+</html>
